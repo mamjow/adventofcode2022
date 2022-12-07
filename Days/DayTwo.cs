@@ -10,9 +10,9 @@ public class DayTwo
     // win = 6
 
     // Part 2
-    // x = draw
+    // x = lose
     // y = draw
-    // y = draw
+    // y = win
 
     public int CalculateScorePart1(string elf, string me)
     {
