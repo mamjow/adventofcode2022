@@ -25,16 +25,16 @@ public class DayThree : ISolve
         return alhpabets.IndexOf(incomon) + 1;
     }
 
-    public int SolvePartOne(string[] input)
+    public string SolvePartOne(string[] input)
     {
         var score = 0;
         foreach (var item in input)
         {
             score += GetLaneScore(item);
         }     
-        return score;
+        return score.ToString();
     }
-    public int SolvePartTwo(string[] input)
+    public string SolvePartTwo(string[] input)
     {
         var score = 0;
         for (int i = 0; i < input.Length; i += 3)
@@ -43,6 +43,6 @@ public class DayThree : ISolve
 
             score += Get3LaneScore(list);
         }
-        return score;
+        return score.ToString();
     }
 }

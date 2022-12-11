@@ -1,5 +1,7 @@
 using app;
 namespace Days;
+
+using System.Text;
 using System.Text.RegularExpressions;
 
 public class DayFive : ISolve
@@ -17,22 +19,15 @@ public class DayFive : ISolve
     // Starting Stack
     List<Stack<string>> ShipCargo = new List<Stack<string>>();
     Regex reg = new Regex(@"(?:(?:\[|\s){1}([A-Z|\s]){1}(?:\]|\s){1}(?:\s|\n)?)");
-    public DayFive()
-    {
-        var res = reg.Matches("     [C]             [L]         [T]");
 
-        // every index 2 of matches is value
-        Console.WriteLine($"res.Count: {res.Count}");
-    }
-
-
-    public int SolvePartOne(string[] input)
+    public string SolvePartOne(string[] input)
     {
         FillBaseStacks(input);
-        return 2;
+        Move(input);
+        return readTopStack();
     }
 
-    public int SolvePartTwo(string[] input)
+    public string SolvePartTwo(string[] input)
     {
         throw new NotImplementedException();
     }
@@ -80,7 +75,38 @@ public class DayFive : ISolve
         }
     }
 
-    public void Move(){
+    public void Move(string[] input)
+    {
+        var RegexNumber = new Regex(@"\d+");
+        foreach (var line in input)
+        {
+            var matches = RegexNumber.Matches(line);
+            if(matches.Count != 3){
+                continue;
+            }
+            // move 1 from 5 to 6
+            // index 0 = how many
+            // index 1 = from
+            // index 2 = destination
 
+            int.TryParse(matches[0].Value, out int index);
+            int.TryParse(matches[1].Value, out int from);
+            int.TryParse(matches[2].Value, out int destination);
+            for (int i = 0; i < index; i++)
+            {
+                var value = ShipCargo[from-1].Pop();
+                ShipCargo[destination-1].Push(value);
+            }
+        }
+    }
+
+    public string readTopStack()
+    {
+        var result = new StringBuilder();
+        for (int i = 0; i < ShipCargo.Count; i++)
+        {
+            result.Append(ShipCargo[i].Peek());
+        }
+        return result.ToString();
     }
 }

@@ -4,7 +4,7 @@ namespace Days;
 
 public class DayFour : ISolve
 {
-    public int SolvePartOne(string[] input)
+    public string SolvePartOne(string[] input)
     {
         var score = 0;
         foreach (var item in input)
@@ -20,10 +20,10 @@ public class DayFour : ISolve
                 score ++;
             }
         }
-        return score;
+        return score.ToString();
     }
 
-    public int SolvePartTwo(string[] input)
+    public string SolvePartTwo(string[] input)
     {
         var score = 0;
         foreach (var item in input)
@@ -39,7 +39,7 @@ public class DayFour : ISolve
                 score ++;
             }
         }
-        return score;
+        return score.ToString();
     }
 
 

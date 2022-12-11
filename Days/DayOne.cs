@@ -3,12 +3,12 @@ namespace Days;
 
 public class DayOne : ISolve
 {
-    public int SolvePartOne(string[] input)
+    public string SolvePartOne(string[] input)
     {
         throw new NotImplementedException();
     }
 
-    public int SolvePartTwo(string[] input)
+    public string SolvePartTwo(string[] input)
     {
         throw new NotImplementedException();
     }
