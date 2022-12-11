@@ -29,7 +29,10 @@ public class DayFive : ISolve
 
     public string SolvePartTwo(string[] input)
     {
-        throw new NotImplementedException();
+        ShipCargo = new List<Stack<string>>();
+        FillBaseStacks(input);
+        Move(input, true);
+        return readTopStack();
     }
 
     public void FillBaseStacks(string[] input)
@@ -65,23 +68,25 @@ public class DayFive : ISolve
         for (int i = 0; i < numberOfStacks; i++)
         {
             // every index 2 of matches is value
-            while(reverseStackOfItems[i].Count != 0)
+            while (reverseStackOfItems[i].Count != 0)
             {
                 var value = reverseStackOfItems[i].Pop();
-                if(!string.IsNullOrWhiteSpace(value)){
+                if (!string.IsNullOrWhiteSpace(value))
+                {
                     ShipCargo[i].Push(value);
                 }
             }
         }
     }
 
-    public void Move(string[] input)
+    public void Move(string[] input, bool saveOrder = false)
     {
         var RegexNumber = new Regex(@"\d+");
         foreach (var line in input)
         {
             var matches = RegexNumber.Matches(line);
-            if(matches.Count != 3){
+            if (matches.Count != 3)
+            {
                 continue;
             }
             // move 1 from 5 to 6
@@ -92,11 +97,29 @@ public class DayFive : ISolve
             int.TryParse(matches[0].Value, out int index);
             int.TryParse(matches[1].Value, out int from);
             int.TryParse(matches[2].Value, out int destination);
-            for (int i = 0; i < index; i++)
+            if (saveOrder)
             {
-                var value = ShipCargo[from-1].Pop();
-                ShipCargo[destination-1].Push(value);
+                var tempStack = new Stack<string>();
+                for (int i = 0; i < index; i++)
+                {
+                    var value = ShipCargo[from - 1].Pop();
+                    tempStack.Push(value);
+                }
+                while (tempStack.Count != 0) 
+                {
+                    var value = tempStack.Pop();
+                    ShipCargo[destination - 1].Push(value);
+                } 
             }
+            else
+            {
+                for (int i = 0; i < index; i++)
+                {
+                    var value = ShipCargo[from - 1].Pop();
+                    ShipCargo[destination - 1].Push(value);
+                }
+            }
+
         }
     }
 
