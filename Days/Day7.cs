@@ -71,20 +71,15 @@ public class Day7 : ISolve
             int.TryParse(sizeAndFile[0], out var size);
             this.pointer.AddFile(size, sizeAndFile[1]);
         }
-
     }
-
-
-
-    
 
     public List<TreeNode> FindChildwithinThatLimit(TreeNode node, int limit = 100000, bool smaller = true)
     {
-        var list = node.ChilderenDir.Where(x => smaller? ( x.Size < limit) : ( x.Size > limit)).ToList();
+        var list = node.ChilderenDir.Where(x => smaller ? (x.Size < limit) : (x.Size > limit)).ToList();
 
         foreach (var child in node.ChilderenDir)
         {
-            list.AddRange(FindChildwithinThatLimit(child, limit,smaller));
+            list.AddRange(FindChildwithinThatLimit(child, limit, smaller));
         }
         return list;
     }
@@ -115,11 +110,10 @@ public class TreeNode
     {
         this.Files.Add(new TreeFile() { Size = size, Name = name });
     }
-
 }
 
 public class TreeFile
 {
     public int Size { get; set; }
-    public String Name { get; set; }
+    public String? Name { get; set; }
 }
