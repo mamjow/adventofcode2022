@@ -5,8 +5,29 @@ public class Day7 : ISolve
     TreeNode root = new TreeNode("root");
     public TreeNode pointer;
 
+    public int DiskSpace = 70000000;
+    public int DemandedFreeSpace = 30000000;
     public string SolvePartOne(string[] input)
     {
+        ReadTree(input);
+        return FindChildwithinThatLimit(this.root).Select(x => x.Size).ToList().Sum().ToString(); ;
+    }
+
+    public string SolvePartTwo(string[] input)
+    {
+        ReadTree(input);
+        var totalUsed = this.root.Size;
+        var empty = this.DiskSpace - totalUsed;
+        var demandToDelet = this.DemandedFreeSpace - empty;
+        var list = FindChildwithinThatLimit(this.root, demandToDelet, false).Select(x => x.Size).ToList();
+        list.Sort();
+        return list[0].ToString();
+    }
+
+    public void ReadTree(string[] input)
+    {
+        this.root = new TreeNode("root");
+        this.pointer = root;
         foreach (var lane in input)
         {
             if (lane.StartsWith("$"))
@@ -17,16 +38,8 @@ public class Day7 : ISolve
             {
                 FillData(lane);
             }
-
         }
-        return getFolderSize();
     }
-
-    public string SolvePartTwo(string[] input)
-    {
-        throw new NotImplementedException();
-    }
-
     public void PerformAction(string lane)
     {
         if (lane.Equals("$ cd /"))
@@ -45,7 +58,6 @@ public class Day7 : ISolve
             this.pointer = this.pointer.ChilderenDir.First(x => x.Name.Equals(folderName));
         }
     }
-
     public void FillData(string lane)
     {
         if (lane.StartsWith("dir"))
@@ -62,18 +74,17 @@ public class Day7 : ISolve
 
     }
 
-    public string getFolderSize(){
-        var list = findBigestChild(this.root);
-        var sizeList = list.Select(x => x.Size).ToList();
-        return sizeList.Sum().ToString();
-    }
 
-    public List<TreeNode> findBigestChild(TreeNode node){
-        var list =  node.ChilderenDir.Where(x => x.Size < 100000).ToList();
+
+    
+
+    public List<TreeNode> FindChildwithinThatLimit(TreeNode node, int limit = 100000, bool smaller = true)
+    {
+        var list = node.ChilderenDir.Where(x => smaller? ( x.Size < limit) : ( x.Size > limit)).ToList();
 
         foreach (var child in node.ChilderenDir)
         {
-            list.AddRange(findBigestChild(child));
+            list.AddRange(FindChildwithinThatLimit(child, limit,smaller));
         }
         return list;
     }
@@ -102,7 +113,7 @@ public class TreeNode
 
     public void AddFile(int size, string name)
     {
-            this.Files.Add(new TreeFile(){Size = size, Name = name});
+        this.Files.Add(new TreeFile() { Size = size, Name = name });
     }
 
 }
