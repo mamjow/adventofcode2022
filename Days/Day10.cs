@@ -77,7 +77,7 @@ public class Day10 : ISolve
         }
         else
         {
-            output.Add('.');
+            output.Add(' ');
         }
     }
 }
