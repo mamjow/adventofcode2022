@@ -66,7 +66,12 @@ public class Day10 : ISolve
 
     private void FillOutput()
     {
-        if ((Cycles % 40) >= X && (Cycles % 40) <= (X + 2))
+        var horizontalPosition = (Cycles % 40);
+        if (horizontalPosition == 0)
+        {
+            horizontalPosition = 40;
+        }
+        if (horizontalPosition >= X && horizontalPosition <= (X + 2))
         {
             output.Add('#');
         }
