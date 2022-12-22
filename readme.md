@@ -10,3 +10,4 @@
 | 6   | C#       | :star2: :star2: | [TuningTrouble](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day6.cs) |
 | 7   | C#       | :star2: :star2: | [NoSpaceLeftOnDevice](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day7.cs) |
 | 8   | C#       | :star2: :star2: | [TreetopTreeHouse](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day8.cs) |
+| 9   | C#       | :star2: :star2: | [RopeBridge](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day9.cs) |

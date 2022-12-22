@@ -4,25 +4,42 @@ public class Day9 : ISolve
 {
     HashSet<(int, int)> HeadMoves = new HashSet<(int, int)>();
     (int, int) HeadCurrentPosition = (0, 0);
-    (int, int) TailCurrentPosition = (0, 0);
-    HashSet<(int, int)> TailMoves = new HashSet<(int, int)>();
+    List<(int, int)> TailsCurrentPosition = new List<(int, int)>();
+    List<HashSet<(int, int)>> TailsMoves = new List<HashSet<(int, int)>>();
+
 
     public string SolvePartOne(string[] input)
     {
-        HeadMoves.Add(HeadCurrentPosition);
-        TailMoves.Add(TailCurrentPosition);
-        foreach (var line in input)
-        {
-            ReadMove(line);
-        }
-        return TailMoves.Count.ToString();
+        return SolveGameWithNumberOfTails(input, 1);
     }
 
     public string SolvePartTwo(string[] input)
     {
-        throw new NotImplementedException();
+        return SolveGameWithNumberOfTails(input, 9);
     }
 
+    private string SolveGameWithNumberOfTails(string[] input, int numberOfTails)
+    {
+        // lets clean history and all shits
+        HeadMoves.Clear();
+        HeadCurrentPosition = (0,0);
+        TailsCurrentPosition.Clear();
+        TailsMoves.Clear();
+
+        HeadMoves.Add(HeadCurrentPosition);
+        // Set initial state of all tails
+        for (int i = 0; i < numberOfTails; i++)
+        {
+            TailsCurrentPosition.Add((0, 0));
+            TailsMoves.Add(new HashSet<(int, int)>() { TailsCurrentPosition[i] });
+        }
+
+        foreach (var line in input)
+        {
+            ReadMove(line);
+        }
+        return TailsMoves[^1].Count.ToString();
+    }
 
     private void ReadMove(string move)
     {
@@ -41,7 +58,11 @@ public class Day9 : ISolve
                 {
                     HeadCurrentPosition = (HeadCurrentPosition.Item1, HeadCurrentPosition.Item2 + 1);
                     HeadMoves.Add(HeadCurrentPosition);
-                    DecideTaileMove();
+                    for (int tailIndex = 0; tailIndex < TailsMoves.Count; tailIndex++)
+                    {
+                        DecideTaileMove(tailIndex);
+                    }
+
                 }
                 break;
             case "D":
@@ -49,7 +70,10 @@ public class Day9 : ISolve
                 {
                     HeadCurrentPosition = (HeadCurrentPosition.Item1, HeadCurrentPosition.Item2 - 1);
                     HeadMoves.Add(HeadCurrentPosition);
-                    DecideTaileMove();
+                    for (int tailIndex = 0; tailIndex < TailsMoves.Count; tailIndex++)
+                    {
+                        DecideTaileMove(tailIndex);
+                    }
                 }
                 break;
             case "R":
@@ -57,7 +81,10 @@ public class Day9 : ISolve
                 {
                     HeadCurrentPosition = (HeadCurrentPosition.Item1 + 1, HeadCurrentPosition.Item2);
                     HeadMoves.Add(HeadCurrentPosition);
-                    DecideTaileMove();
+                    for (int tailIndex = 0; tailIndex < TailsMoves.Count; tailIndex++)
+                    {
+                        DecideTaileMove(tailIndex);
+                    }
                 }
                 break;
             case "L":
@@ -65,7 +92,10 @@ public class Day9 : ISolve
                 {
                     HeadCurrentPosition = (HeadCurrentPosition.Item1 - 1, HeadCurrentPosition.Item2);
                     HeadMoves.Add(HeadCurrentPosition);
-                    DecideTaileMove();
+                    for (int tailIndex = 0; tailIndex < TailsMoves.Count; tailIndex++)
+                    {
+                        DecideTaileMove(tailIndex);
+                    }
                 }
                 break;
             default:
@@ -74,10 +104,24 @@ public class Day9 : ISolve
 
     }
 
-    private void DecideTaileMove()
+    private void DecideTaileMove(int index)
     {
-        var varticalDistance = HeadCurrentPosition.Item2 - TailCurrentPosition.Item2;
-        var horizontalDistance = HeadCurrentPosition.Item1 - TailCurrentPosition.Item1;
+        (int, int) headPosition;
+        (int, int) tailPosition;
+        if (index == 0)
+        {
+            // then head is REAL head
+            tailPosition = TailsCurrentPosition[index];
+            headPosition = HeadCurrentPosition;
+        }
+        else
+        {
+            tailPosition = TailsCurrentPosition[index];
+            headPosition = TailsCurrentPosition[index - 1];
+        }
+
+        var varticalDistance = headPosition.Item2 - tailPosition.Item2;
+        var horizontalDistance = headPosition.Item1 - tailPosition.Item1;
 
         var vertivalAbsolute = Math.Abs(varticalDistance);
         var horizontelAbsolute = Math.Abs(horizontalDistance);
@@ -91,18 +135,21 @@ public class Day9 : ISolve
         {
             case (0, 2):
                 //simple move
-                TailCurrentPosition.Item2 = (varticalDistance < 0) ? TailCurrentPosition.Item2 - 1 : TailCurrentPosition.Item2 + 1;
+                tailPosition.Item2 = (varticalDistance < 0) ? tailPosition.Item2 - 1 : tailPosition.Item2 + 1;
                 break;
             case (2, 0):
                 // simple move
-                TailCurrentPosition.Item1 = (horizontalDistance < 0) ? TailCurrentPosition.Item1 - 1 : TailCurrentPosition.Item1 + 1;
+                tailPosition.Item1 = (horizontalDistance < 0) ? tailPosition.Item1 - 1 : tailPosition.Item1 + 1;
                 break;
             default:
-                TailCurrentPosition.Item1 = (horizontalDistance < 0) ? TailCurrentPosition.Item1 - 1 : TailCurrentPosition.Item1 + 1;
-                TailCurrentPosition.Item2 = (varticalDistance < 0) ? TailCurrentPosition.Item2 - 1 : TailCurrentPosition.Item2 + 1;
+                tailPosition.Item1 = (horizontalDistance < 0) ? tailPosition.Item1 - 1 : tailPosition.Item1 + 1;
+                tailPosition.Item2 = (varticalDistance < 0) ? tailPosition.Item2 - 1 : tailPosition.Item2 + 1;
                 break;
         }
-        TailMoves.Add(TailCurrentPosition);
+        // update  position 
+        TailsCurrentPosition[index] = tailPosition;
+        // add history
+        TailsMoves[index].Add(tailPosition);
     }
 }
 
