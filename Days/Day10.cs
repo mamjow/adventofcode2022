@@ -19,8 +19,6 @@ public class Day10 : ISolve
         throw new NotImplementedException();
     }
 
-
-
     private void readLine(string line)
     {
         var actionAndValue = line.Split(" ");
