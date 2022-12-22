@@ -97,14 +97,6 @@ public class Day9 : ISolve
                 // simple move
                 TailCurrentPosition.Item1 = (horizontalDistance < 0) ? TailCurrentPosition.Item1 - 1 : TailCurrentPosition.Item1 + 1;
                 break;
-            // case (1, 2):
-            //     // diognal move
-            //     TailCurrentPosition.Item1 = (horizontalDistance < 0)? TailCurrentPosition.Item1 - 1 : TailCurrentPosition.Item1 + 1;
-            //     TailCurrentPosition.Item2 = (varticalDistance < 0)? TailCurrentPosition.Item2 - 1 : TailCurrentPosition.Item2 + 1;
-            //     break;
-            // case (2, 1):
-            //     // diognal move
-            // break;
             default:
                 TailCurrentPosition.Item1 = (horizontalDistance < 0) ? TailCurrentPosition.Item1 - 1 : TailCurrentPosition.Item1 + 1;
                 TailCurrentPosition.Item2 = (varticalDistance < 0) ? TailCurrentPosition.Item2 - 1 : TailCurrentPosition.Item2 + 1;
