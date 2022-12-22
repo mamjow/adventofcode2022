@@ -1,3 +1,4 @@
+using System.Text;
 using app;
 namespace Days;
 public class Day10 : ISolve
@@ -5,6 +6,7 @@ public class Day10 : ISolve
     int Cycles = 0;
     int SignalPower = 0;
     int X = 1;
+    List<char> output = new List<char>();
     public string SolvePartOne(string[] input)
     {
         foreach (var line in input)
@@ -16,7 +18,18 @@ public class Day10 : ISolve
 
     public string SolvePartTwo(string[] input)
     {
-        throw new NotImplementedException();
+        var result = new StringBuilder();
+        result.Append(Environment.NewLine);
+        for (int i = 0; i < output.Count; i++)
+        {
+            result.Append(output[i]);
+            if ((i + 1) % 40 == 0)
+            {
+                result.Append(Environment.NewLine);
+            }
+        }
+
+        return result.ToString();
     }
 
     private void readLine(string line)
@@ -30,11 +43,8 @@ public class Day10 : ISolve
             for (int i = 0; i < 2; i++)
             {
                 Cycles++;
-                if (Cycles == 20 || (Cycles - 20) % 40 == 0)
-                {
-                    var a = (X * Cycles);
-                    SignalPower += a;
-                }
+                FillOutput();
+                UpdateSignalPower();
             }
             X += value;
         }
@@ -42,11 +52,27 @@ public class Day10 : ISolve
         {
             // noop
             Cycles++;
-            if (Cycles == 20 || (Cycles - 20) % 40 == 0)
-            {
-                var a = (X * Cycles);
-                SignalPower += a;
-            }
+            FillOutput();
+            UpdateSignalPower();
+        }
+    }
+    private void UpdateSignalPower()
+    {
+        if (Cycles == 20 || (Cycles - 20) % 40 == 0)
+        {
+            SignalPower += (X * Cycles);
+        }
+    }
+
+    private void FillOutput()
+    {
+        if ((Cycles % 40) >= X && (Cycles % 40) <= (X + 2))
+        {
+            output.Add('#');
+        }
+        else
+        {
+            output.Add('.');
         }
     }
 }
