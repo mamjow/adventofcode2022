@@ -5,13 +5,11 @@ using app;
 namespace Days;
 public class Day11 : ISolve
 {
-
     string MonkeyPointerRegex = @"^Monkey\s(\d):$";
     string MonkeySlotItemsRegex = @"^\s\sStarting\sitems:\s(?:([\d]{1,3})[,|\s]*)+$";
     string MonkeyOperationRegex = @"^\s\sOperation:\snew\s=\s([\d\S]*)\s([*+-/])\s([\d\S]*)$";
     string MonkeyTestRegex = @"^\s{2}Test:\sdivisible\sby\s([\d]{1,2})$";
     string MonkeyStateRegex = @"^\s{4}If\s([\S]*):[\sA-Za-z]+(\d){1,2}$";
-
 
     List<Monkey> PlayingMonkeys = new List<Monkey>();
 
@@ -21,10 +19,12 @@ public class Day11 : ISolve
         {
             ReadLane(lane);
         }
+
         for (int i = 0; i < 20; i++)
         {
             PlayOneRound(true);
         }
+
         var inspectCounter = PlayingMonkeys.Select(x => x.InspectedItems).ToList();
         inspectCounter.Sort();
         return (inspectCounter[^1] * inspectCounter[^2]).ToString();
@@ -38,8 +38,8 @@ public class Day11 : ISolve
         {
             ReadLane(lane);
         }
-        var lcm = new HashSet<int>(PlayingMonkeys.Select(x => x.TestValue).ToList()).Aggregate((a, b) => a * b);
 
+        var lcm = new HashSet<int>(PlayingMonkeys.Select(x => x.TestValue).ToList()).Aggregate((a, b) => a * b);
         for (int i = 0; i < 10_000; i++)
         {
             PlayOneRound(false, lcm);
@@ -102,7 +102,6 @@ public class Day11 : ISolve
                 var itemGameResult = monkey.InspectItem(uCanStayCalm, lcm);
                 PlayingMonkeys[itemGameResult.Item1].Items.Enqueue(itemGameResult.Item2);
             }
-
         }
     }
 }
@@ -113,10 +112,8 @@ public class Monkey
     public int TestValue;
     public int TrueState;
     public int FalseState;
-
     public string Operation = string.Empty;
     public string? OperationValue;
-
     public long InspectedItems;
     public (int, long) InspectItem(bool uCanStayCalm, int lcm)
     {
