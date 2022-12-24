@@ -12,4 +12,4 @@
 | 8   | C#       | :star2: :star2: | [TreetopTreeHouse](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day8.cs) |
 | 9   | C#       | :star2: :star2: | [RopeBridge](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day9.cs) |
 | 10   | C#       | :star2: :star2: | [Cathode-RayTube](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day10.cs) |
-| 11   | C#       | :star2: :star2: | [Cathode-RayTube](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day11.cs) |
+| 11   | C#       | :star2: :star2: | [MonkeyInTheMiddle](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day11.cs) |
