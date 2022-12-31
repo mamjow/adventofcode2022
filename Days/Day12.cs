@@ -1,14 +1,9 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using app;
 namespace Days;
 public class Day12 : ISolve
 {
     List<List<char>> Map = new List<List<char>>();
-    (int, int) StartPoint;
-    (int, int) EndPoint;
-    // TreeRouteNode Route;
-    GraphRouteNode Graph = new GraphRouteNode();
+    public HashSet<Vertex> Graph { get; set; } = new HashSet<Vertex>();
     int VertivalLimit;
     int HorizontalLimit;
 
@@ -31,11 +26,8 @@ public class Day12 : ISolve
     {
         var row = Map.FindIndex(x => x.Contains('S'));
         var col = Map[row].FindIndex(x => x == 'S');
-        StartPoint = (row, col);
-
         row = Map.FindIndex(x => x.Contains('E'));
-        col = Map[row].FindIndex(x => x == 'E');
-        EndPoint = (row, col);
+        col = Map[row].FindIndex(x => x == 'E'); ;
         VertivalLimit = this.Map.Count;
         HorizontalLimit = this.Map[0].Count;
     }
@@ -46,10 +38,10 @@ public class Day12 : ISolve
             for (int c = 0; c < HorizontalLimit; c++)
             {
                 var node = new Vertex((r, c), Map[r][c]);
-                Graph.Childeren.Add(node);
+                Graph.Add(node);
             }
         }
-        foreach (var node in Graph.Childeren)
+        foreach (var node in Graph)
         {
             AddNodeCandidates(node);
         }
@@ -59,11 +51,9 @@ public class Day12 : ISolve
     private int FindBestPath()
     {
         Queue<(Vertex, int)> list = new Queue<(Vertex, int)>();
-        var start = Graph.Childeren.Where(x => x.ElevationLevel == 'S').First();
-        var end = Graph.Childeren.Where(x => x.ElevationLevel == 'E').First();
-
+        var start = Graph.Where(x => x.ElevationLevel == 'S').First();
+        var end = Graph.Where(x => x.ElevationLevel == 'E').First();
         Dictionary<Vertex, int> Visited = new Dictionary<Vertex, int>();
-
         var step = 0;
         list.Enqueue((start, 0));
         while (list.Any())
@@ -71,16 +61,7 @@ public class Day12 : ISolve
             var item = list.Dequeue();
             var node = item.Item1;
             step = item.Item2;
-            if (Visited.ContainsKey(node))
-            {
-                var latestStep = Visited[node];
-                if (latestStep < step)
-                {
-                    step = latestStep;
-                    Visited[node] = step;
-                }
-            }
-            else
+            if (!Visited.ContainsKey(node))
             {
                 Visited.Add(node, step);
                 foreach (var candidate in node.ValidCandidates)
@@ -99,7 +80,7 @@ public class Day12 : ISolve
         // up
         if (row != 0)
         {
-            var nodeUp = Graph.Childeren.Where(x => x.Position == (row - 1, col)).ToList();
+            var nodeUp = Graph.Where(x => x.Position == (row - 1, col)).ToList();
             if (nodeUp.Count > 1)
             {
                 throw new Exception();
@@ -109,7 +90,7 @@ public class Day12 : ISolve
         // bot
         if (row != VertivalLimit - 1)
         {
-            var nodeBot = Graph.Childeren.Where(x => x.Position == (row + 1, col)).ToList();
+            var nodeBot = Graph.Where(x => x.Position == (row + 1, col)).ToList();
             if (nodeBot.Count > 1)
             {
                 throw new Exception();
@@ -119,17 +100,17 @@ public class Day12 : ISolve
         // left
         if (col != 0)
         {
-            var nodeLeft = Graph.Childeren.Where(x => x.Position == (row, col - 1)).ToList();
+            var nodeLeft = Graph.Where(x => x.Position == (row, col - 1)).ToList();
             if (nodeLeft.Count > 1)
             {
                 throw new Exception();
             }
             node.AddCandidates(nodeLeft[0]);
         }
-        // righ
+        // right
         if (col != HorizontalLimit - 1)
         {
-            var nodeRight = Graph.Childeren.Where(x => x.Position == (row, col + 1)).ToList();
+            var nodeRight = Graph.Where(x => x.Position == (row, col + 1)).ToList();
             if (nodeRight.Count > 1)
             {
                 throw new Exception();
@@ -137,38 +118,6 @@ public class Day12 : ISolve
             node.AddCandidates(nodeRight[0]);
         }
     }
-
-    public int FindDestination(Vertex node)
-    {
-        var queue = new Queue<Vertex>();
-        queue.Enqueue(node);
-        int dept = 0;
-        while (queue.Any())
-        {
-
-            var checkingNode = queue.Dequeue();
-            Console.WriteLine($"{queue.Count} {checkingNode.ElevationLevel}");
-            if (checkingNode.ElevationLevel == 'E')
-            {
-                return dept;
-            }
-            foreach (var item in checkingNode.ValidCandidates)
-            {
-                if (item.ValidCandidates.Any())
-                {
-                    queue.Enqueue(item);
-                }
-
-            }
-        }
-        return dept;
-    }
-}
-
-
-public class GraphRouteNode
-{
-    public HashSet<Vertex> Childeren { get; set; } = new HashSet<Vertex>();
 }
 
 public class Vertex : IEquatable<Vertex>
@@ -217,7 +166,6 @@ public class Vertex : IEquatable<Vertex>
         }
     }
 
-
     public bool Equals(Vertex? other)
     {
         return Position == other?.Position;
@@ -232,5 +180,4 @@ public class Vertex : IEquatable<Vertex>
     {
         return Equals(obj);
     }
-
 }
