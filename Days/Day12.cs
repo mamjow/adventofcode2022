@@ -13,13 +13,14 @@ public class Day12 : ISolve
         {
             Map.Add(line.ToCharArray().ToList());
         }
+
         FindStartAndEndPoints();
         return ReadMap().ToString();
     }
 
     public string SolvePartTwo(string[] input)
     {
-        var list = Graph.Where(x => x.ElevationLevel == 'a').Select(x => FindBestPath(x)).Where(x=> x != 0 ).ToList();
+        var list = Graph.Where(x => x.ElevationLevel == 'a').Select(x => FindBestPath(x)).Where(x => x != 0).ToList();
         list.Sort();
         return list[0].ToString();
     }
@@ -43,10 +44,12 @@ public class Day12 : ISolve
                 Graph.Add(node);
             }
         }
+
         foreach (var node in Graph)
         {
             AddNodeCandidates(node);
         }
+
         var start = Graph.Where(x => x.ElevationLevel == 'S').First();
         return FindBestPath(start);
     }
@@ -73,6 +76,7 @@ public class Day12 : ISolve
                 }
             }
         }
+
         return Visited.TryGetValue(end, out int value) ? value : 0;
     }
 
@@ -90,6 +94,7 @@ public class Day12 : ISolve
             }
             node.AddCandidates(nodeUp[0]);
         }
+
         // bot
         if (row != VertivalLimit - 1)
         {
@@ -100,6 +105,7 @@ public class Day12 : ISolve
             }
             node.AddCandidates(nodeBot[0]);
         }
+
         // left
         if (col != 0)
         {
@@ -110,6 +116,7 @@ public class Day12 : ISolve
             }
             node.AddCandidates(nodeLeft[0]);
         }
+
         // right
         if (col != HorizontalLimit - 1)
         {
