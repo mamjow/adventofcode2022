@@ -13,4 +13,4 @@
 | 9   | C#       | :star: :star: | [RopeBridge](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day9.cs) |
 | 10   | C#       | :star: :star: | [Cathode-RayTube](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day10.cs) |
 | 11   | C#       | :star: :star: | [MonkeyInTheMiddle](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day11.cs) |
-| 12   | C#       | :star:  | [Hill Climbing Algorithm](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day12.cs) |
+| 12   | C#       | :star: :star: | [Hill Climbing Algorithm](https://github.com/mamjow/adventofcode2022/blob/master/Days/Day12.cs) |

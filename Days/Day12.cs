@@ -19,7 +19,9 @@ public class Day12 : ISolve
 
     public string SolvePartTwo(string[] input)
     {
-        return "s";
+        var list = Graph.Where(x => x.ElevationLevel == 'a').Select(x => FindBestPath(x)).Where(x=> x != 0 ).ToList();
+        list.Sort();
+        return list[0].ToString();
     }
 
     private void FindStartAndEndPoints()
@@ -45,17 +47,18 @@ public class Day12 : ISolve
         {
             AddNodeCandidates(node);
         }
-        return FindBestPath();
+        var start = Graph.Where(x => x.ElevationLevel == 'S').First();
+        return FindBestPath(start);
     }
 
-    private int FindBestPath()
+    private int FindBestPath(Vertex startingPoint)
     {
         Queue<(Vertex, int)> list = new Queue<(Vertex, int)>();
-        var start = Graph.Where(x => x.ElevationLevel == 'S').First();
+
         var end = Graph.Where(x => x.ElevationLevel == 'E').First();
         Dictionary<Vertex, int> Visited = new Dictionary<Vertex, int>();
         var step = 0;
-        list.Enqueue((start, 0));
+        list.Enqueue((startingPoint, 0));
         while (list.Any())
         {
             var item = list.Dequeue();
@@ -70,7 +73,7 @@ public class Day12 : ISolve
                 }
             }
         }
-        return Visited[end];
+        return Visited.TryGetValue(end, out int value) ? value : 0;
     }
 
     public void AddNodeCandidates(Vertex node)
