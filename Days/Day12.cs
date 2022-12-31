@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using app;
 namespace Days;
 public class Day12 : ISolve
@@ -6,10 +7,8 @@ public class Day12 : ISolve
     List<List<char>> Map = new List<List<char>>();
     (int, int) StartPoint;
     (int, int) EndPoint;
-    TreeRouteNode Route;
-    List<int> possibleRoutes = new List<int>();
-    int ShortestPath;
-
+    // TreeRouteNode Route;
+    GraphRouteNode Graph = new GraphRouteNode();
     int VertivalLimit;
     int HorizontalLimit;
 
@@ -20,11 +19,7 @@ public class Day12 : ISolve
             Map.Add(line.ToCharArray().ToList());
         }
         FindStartAndEndPoints();
-        FillRoute(true);
-        ReadTreeDept(this.Route);
-        possibleRoutes.Sort();
-        var answer = possibleRoutes[0].ToString();
-        return answer;
+        return ReadMap().ToString();
     }
 
     public string SolvePartTwo(string[] input)
@@ -44,263 +39,198 @@ public class Day12 : ISolve
         VertivalLimit = this.Map.Count;
         HorizontalLimit = this.Map[0].Count;
     }
-    private void FillRoute(bool forwardDirection)
+    private int ReadMap()
     {
-        this.Route = new TreeRouteNode(forwardDirection ? StartPoint : EndPoint, forwardDirection ? 'S' : 'E');
-
-        FindStep(this.Route, forwardDirection);
-    }
-
-
-    private void ReadTreeDept(TreeRouteNode node)
-    {
-        if (node.Childeren.Count == 0 || node.Destination == true)
+        for (int r = 0; r < VertivalLimit; r++)
         {
-            return;
-        }
-        else
-        {
-            foreach (var child in node.Childeren)
+            for (int c = 0; c < HorizontalLimit; c++)
             {
-                // Console.WriteLine($"Who: {child.MyRoute} lenght {child.MyRoute.Length}");
-                if (child.Destination)
-                {
-                    //Console.WriteLine($"Who: {child.MyRoute} lenght {child.MyRoute.Length}");
-                    possibleRoutes.Add(child.MyRoute.Length);
-                    return;
-                }
-                ReadTreeDept(child);
-
+                var node = new Vertex((r, c), Map[r][c]);
+                Graph.Childeren.Add(node);
             }
-            return;
         }
+        foreach (var node in Graph.Childeren)
+        {
+            AddNodeCandidates(node);
+        }
+        return FindBestPath();
     }
 
-    private bool IsGoodNeighbour(TreeRouteNode sourceNode, char destinationChar, bool forward)
+    private int FindBestPath()
     {
-        char sourdeNodeElevation = sourceNode.ElevationLevel;
-        if (forward)
+        Queue<(Vertex, int)> list = new Queue<(Vertex, int)>();
+        var start = Graph.Childeren.Where(x => x.ElevationLevel == 'S').First();
+        var end = Graph.Childeren.Where(x => x.ElevationLevel == 'E').First();
+
+        Dictionary<Vertex, int> Visited = new Dictionary<Vertex, int>();
+
+        var step = 0;
+        list.Enqueue((start, 0));
+        while (list.Any())
         {
-            destinationChar = destinationChar == 'E' ? '{' : destinationChar;
-            sourdeNodeElevation = sourdeNodeElevation == 'S' ? '`' : sourdeNodeElevation;
-            // destination should be 1 higher dat sourse node
-            // or as much as wants lower
-            // a -> b so b - a = 1
-            // a -> a so a - a = 0
-            // z -> a so z - a = -24
-            return ((int)destinationChar - (int)sourdeNodeElevation) <= 1;
+            var item = list.Dequeue();
+            var node = item.Item1;
+            step = item.Item2;
+            if (Visited.ContainsKey(node))
+            {
+                var latestStep = Visited[node];
+                if (latestStep < step)
+                {
+                    step = latestStep;
+                    Visited[node] = step;
+                }
+            }
+            else
+            {
+                Visited.Add(node, step);
+                foreach (var candidate in node.ValidCandidates)
+                {
+                    list.Enqueue((candidate, step + 1));
+                }
+            }
         }
-        else
-        {
-            destinationChar = destinationChar == 'S' ? '`' : destinationChar;
-            sourdeNodeElevation = sourdeNodeElevation == 'E' ? '{' : sourdeNodeElevation;
-            // b -> a so a - b = -1
-            // b -> b so b - b = 0
-            // a -> z so a - z = +24
-            return ((int)destinationChar - (int)sourdeNodeElevation) >= -1;
-        }
+        return Visited[end];
     }
 
-
-    private void FindStep(TreeRouteNode node, bool forward)
+    public void AddNodeCandidates(Vertex node)
     {
-        // (row , col)
-        //Console.WriteLine(node.MyRoute);
-        PrintNodePath(node);
         var row = node.Position.Item1;
         var col = node.Position.Item2;
-        char elevationLevel = node.ElevationLevel;
-        // check ur location
-        // check limits
-        if (elevationLevel == 'v')
+        // up
+        if (row != 0)
         {
-            Thread.Sleep(10);
+            var nodeUp = Graph.Childeren.Where(x => x.Position == (row - 1, col)).ToList();
+            if (nodeUp.Count > 1)
+            {
+                throw new Exception();
+            }
+            node.AddCandidates(nodeUp[0]);
         }
-        var beenThere = false;
-        if (col == 0 || col == HorizontalLimit - 1)
+        // bot
+        if (row != VertivalLimit - 1)
         {
-            // x is 0 then its at edge of
-            char neighbour = col == 0 ? (Map[row][col + 1]) : (Map[row][col - 1]);
-
-            if (neighbour == (forward ? 'E' : 'S') && IsGoodNeighbour(node, neighbour, forward))
+            var nodeBot = Graph.Childeren.Where(x => x.Position == (row + 1, col)).ToList();
+            if (nodeBot.Count > 1)
             {
-                // boom
-                node.Destination = true;
-                return;
+                throw new Exception();
             }
-
-            beenThere = node.RouteHistory.Contains((row, col == 0 ? col + 1 : col - 1));
-            if (IsGoodNeighbour(node, neighbour, forward) && !beenThere)
-            {
-                node.Childeren.Add(new TreeRouteNode((row, col == 0 ? col + 1 : col - 1), neighbour, node));
-            }
+            node.AddCandidates(nodeBot[0]);
         }
-        else
+        // left
+        if (col != 0)
         {
-            // then 2 veritcal buurman
-            char neighbourLeft = Map[row][col - 1];
-            char neighbourRight = Map[row][col + 1];
-            if ((neighbourLeft == (forward ? 'E' : 'S') && IsGoodNeighbour(node, neighbourLeft, forward)) || (IsGoodNeighbour(node, neighbourRight, forward) && neighbourRight == (forward ? 'E' : 'S')))
+            var nodeLeft = Graph.Childeren.Where(x => x.Position == (row, col - 1)).ToList();
+            if (nodeLeft.Count > 1)
             {
-                // booom
-                node.Destination = true;
-                return;
+                throw new Exception();
             }
-
-            beenThere = node.RouteHistory.Contains((row, col - 1));
-            if (IsGoodNeighbour(node, neighbourLeft, forward) && !beenThere)
-            {
-                node.Childeren.Add(new TreeRouteNode((row, col - 1), neighbourLeft, node));
-            }
-
-            beenThere = node.RouteHistory.Contains((row, col + 1));
-            if (IsGoodNeighbour(node, neighbourRight, forward) && !beenThere)
-            {
-                node.Childeren.Add(new TreeRouteNode((row, col + 1), neighbourRight, node));
-            }
+            node.AddCandidates(nodeLeft[0]);
         }
-
-        if (row == 0 || row == VertivalLimit - 1)
+        // righ
+        if (col != HorizontalLimit - 1)
         {
-            // Y is 0 then its at edge of map
-            char neighbour = row == 0 ? (Map[row + 1][col]) : (Map[row - 1][col]);
-            if (neighbour == (forward ? 'E' : 'S') && IsGoodNeighbour(node, neighbour, forward))
+            var nodeRight = Graph.Childeren.Where(x => x.Position == (row, col + 1)).ToList();
+            if (nodeRight.Count > 1)
             {
-                // booom
-                node.Destination = true;
-                return;
+                throw new Exception();
             }
-
-            beenThere = node.RouteHistory.Contains((row == 0 ? row + 1 : row - 1, col));
-            if (IsGoodNeighbour(node, neighbour, forward) && !beenThere)
-            {
-                node.Childeren.Add(new TreeRouteNode((row == 0 ? row + 1 : row - 1, col), neighbour, node));
-            }
-        }
-        else
-        {
-            // then 2 veritcal buurman
-            char neighbourTop = Map[row + 1][col];
-            char neighbourBot = Map[row - 1][col];
-
-            if ((neighbourTop == (forward ? 'E' : 'S') && IsGoodNeighbour(node, neighbourTop, forward)) || (neighbourBot == (forward ? 'E' : 'S') && IsGoodNeighbour(node, neighbourBot, forward)))
-            {
-                // booom
-                node.Destination = true;
-                return;
-            }
-
-            beenThere = node.RouteHistory.Contains((row + 1, col));
-            if (IsGoodNeighbour(node, neighbourTop, forward) && !beenThere)
-            {
-                node.Childeren.Add(new TreeRouteNode((row + 1, col), neighbourTop, node));
-            }
-
-            beenThere = node.RouteHistory.Contains((row - 1, col));
-            if (IsGoodNeighbour(node, neighbourBot, forward) && !beenThere)
-            {
-                node.Childeren.Add(new TreeRouteNode((row - 1, col), neighbourBot, node));
-            }
-        }
-        // check all neighbours
-
-        // if got "s" means mission accomplished
-        // else recoursive
-        // exit if no good neighbours
-        foreach (var child in node.Childeren)
-        {
-            // if is not parent
-            // if (latestPathEnd == node.ElevationLevel)
-            // {
-            //Console.WriteLine($"elevation {child.ElevationLevel} cost: {child.RouteHistory.Count}");
-            // if (child.RouteHistory.Count > ShortestPath)
-            //     continue;
-            //}
-            //this.ShortestPath = child.RouteHistory.Count <= ShortestPath ? child.RouteHistory.Count : ShortestPath;
-            FindStep(child, forward);
+            node.AddCandidates(nodeRight[0]);
         }
     }
 
-    private void PrintNodePath(TreeRouteNode node)
+    public int FindDestination(Vertex node)
     {
-
-        Console.Clear();
-        Console.WriteLine($"{node.ElevationLevel}-{node.MyRoute}-{node.RouteHistory.Count}");
-        Console.Write(Environment.NewLine);
-        List<List<char>> map = new List<List<char>>();
-        var history = node.RouteHistory;
-        history.Add(node.Position);
-        for (int i = 0; i < 42; i++)
+        var queue = new Queue<Vertex>();
+        queue.Enqueue(node);
+        int dept = 0;
+        while (queue.Any())
         {
-            for (int j = 0; j < 133; j++)
-            {
 
-                if (history.Contains((i, j)))
+            var checkingNode = queue.Dequeue();
+            Console.WriteLine($"{queue.Count} {checkingNode.ElevationLevel}");
+            if (checkingNode.ElevationLevel == 'E')
+            {
+                return dept;
+            }
+            foreach (var item in checkingNode.ValidCandidates)
+            {
+                if (item.ValidCandidates.Any())
                 {
-                    if ((i, j) == node.Position)
-                    {
-                        Console.Write("+");
-                    }
-                    else
-                    {
-                        Console.Write("█");
-                    }
-                }
-                else
-                {
-                    Console.Write("░");
+                    queue.Enqueue(item);
                 }
 
             }
-            Console.Write(Environment.NewLine);
         }
-
+        return dept;
     }
 }
 
 
-public class TreeRouteNode
+public class GraphRouteNode
 {
-    public List<TreeRouteNode> Childeren { get; set; } = new List<TreeRouteNode>();
-    public TreeRouteNode? Parent { get; set; }
-    public (int, int) Position;
-    public HashSet<(int, int)> RouteHistory
-    {
-        get
-        {
-            var initialset = new HashSet<(int, int)> { Position };
-            if (Parent != null)
-            {
-                initialset.UnionWith(Parent.RouteHistory);
-            }
-            return initialset;
-        }
-    }
-    public bool Destination = false;
+    public HashSet<Vertex> Childeren { get; set; } = new HashSet<Vertex>();
+}
+
+public class Vertex : IEquatable<Vertex>
+{
+    public HashSet<Vertex> ValidCandidates { get; set; } = new HashSet<Vertex>();
     public char ElevationLevel;
+    public (int, int) Position;
 
-    public string MyRoute
+    public Vertex((int, int) position, char elevationLevel)
     {
-        get
+        Position = position;
+        ElevationLevel = elevationLevel;
+    }
+
+    public void AddCandidates(Vertex node)
+    {
+        var startElevation = ElevationLevel;
+        var targetElevation = node.ElevationLevel;
+        if (targetElevation == 'S')
         {
-            return Parent?.MyRoute + ElevationLevel.ToString();
+            return;
+        }
+        if (startElevation == 'S')
+        {
+            startElevation = 'a';
+        }
+
+        if (targetElevation == 'E')
+        {
+            targetElevation = 'z';
+        }
+
+        // check if really neighbor
+        var defRow = Math.Abs(Position.Item1 - node.Position.Item1);
+        var defCol = Math.Abs(Position.Item2 - node.Position.Item2);
+
+        if (defRow > 1 || defCol > 1 || (defCol == 1 && defRow == 1))
+        {
+            return;
+        }
+
+        var def = targetElevation - startElevation;
+        if (def <= 1)
+        {
+            ValidCandidates.Add(node);
         }
     }
 
-    public TreeRouteNode((int, int) position, char level, TreeRouteNode? mama)
+
+    public bool Equals(Vertex? other)
     {
-        this.Position = position;
-
-        this.Parent = mama;
-
-        this.ElevationLevel = level;
+        return Position == other?.Position;
     }
 
-    public TreeRouteNode((int, int) position, char level)
+    public override int GetHashCode()
     {
-        this.Position = position;
+        return Position.GetHashCode();
+    }
 
-        this.ElevationLevel = level;
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj);
     }
 
 }

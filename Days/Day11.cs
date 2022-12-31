@@ -126,11 +126,13 @@ public class Monkey
         if (uCanStayCalm)
         {
             worryLevel = worryLevel / lcm;
-            return worryLevel % TestValue == 0 ? (TrueState, worryLevel) : (FalseState, worryLevel);
+        }
+        else
+        {
+            worryLevel %= lcm;
         }
         // do test
         // return value and pasing monkey invetory.
-        worryLevel %= lcm;
         return worryLevel % TestValue == 0 ? (TrueState, worryLevel) : (FalseState, worryLevel);
     }
 
